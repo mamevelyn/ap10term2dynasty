@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="fil">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#214E46">
+<title>AP10 Week 1 Interactive Reviewer</title>
+<style>
+:root{
+  --green:#214E46;--green2:#2E6A5E;--rust:#A6533E;--gold:#D6A23A;
+  --paper:#FFFDF7;--ink:#202B2A;--muted:#68736F;--good:#24784D;--bad:#B34242;--line:#D9D0BE;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+ margin:0;color:var(--ink);font-family:Arial,Helvetica,sans-serif;min-height:100vh;
+ background:
+ radial-gradient(circle at 10% 0%,rgba(46,106,94,.13),transparent 31%),
+ linear-gradient(145deg,#eee9dc,#fffaf0 51%,#f2e8df);
+}
+header{
+ padding:26px 16px;color:#fff;border-bottom:5px solid var(--gold);
+ background:linear-gradient(112deg,var(--green),var(--green2) 62%,var(--rust));
+}
+.wrap,main{max-width:1120px;margin:auto}
+.headrow{display:flex;gap:13px;align-items:center}
+.ap10{
+ width:58px;height:58px;border:2px solid rgba(255,255,255,.95);border-radius:50%;
+ display:grid;place-items:center;font:900 .95rem Georgia,serif;color:#ffe3a5;background:rgba(0,0,0,.08)
+}
+h1{font:700 clamp(1.55rem,4vw,2.5rem)/1.1 Georgia,serif;margin:0}
+header p{margin:.45rem 0 0;opacity:.94}
+main{padding:20px 15px 50px}
+.panel,.session-card{
+ background:rgba(255,253,247,.98);border:1px solid var(--line);border-radius:19px;
+ box-shadow:0 10px 26px rgba(34,59,52,.09)
+}
+.panel{padding:18px;margin-bottom:18px}
+.top{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.namebox{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+input{border:1px solid #bdb29f;border-radius:11px;padding:10px 12px;font-size:1rem;min-width:230px}
+button,.action{
+ border:0;border-radius:12px;padding:11px 14px;font-weight:800;text-decoration:none;cursor:pointer;
+ display:inline-flex;align-items:center;justify-content:center;text-align:center
+}
+button:hover,.action:not(.disabled):hover{filter:brightness(1.05);transform:translateY(-1px)}
+.btn{background:var(--green);color:#fff}.btn.gold{background:var(--gold);color:#2b220e}
+.btn.light{background:#eee8dc;color:#443d33}.btn.red{background:var(--bad);color:#fff}
+.intro h2{font-family:Georgia,serif;color:var(--green);margin:0}
+.sessions{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px}
+.session-card{padding:19px;position:relative;overflow:hidden}
+.session-card:before{
+ content:"";position:absolute;left:0;right:0;top:0;height:6px;
+ background:linear-gradient(90deg,var(--green),var(--green2),var(--gold),var(--rust))
+}
+.session-tag{
+ display:inline-block;margin-top:7px;background:var(--green);color:#fff;padding:6px 10px;
+ border-radius:999px;font-size:.8rem;font-weight:900;letter-spacing:.04em
+}
+.session-card h2{font:700 1.28rem/1.25 Georgia,serif;color:var(--green);margin:13px 0 16px}
+.link-stack{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.action.youtube{background:#B72F2F;color:#fff}
+.action.practice{background:var(--rust);color:#fff}
+.action.disabled{opacity:.5;cursor:not-allowed}
+.session-status{margin-top:13px;padding:9px 10px;background:#efece3;border-radius:10px;font-size:.83rem;color:#535d58}
+.hidden{display:none!important}
+.quizhead{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;flex-wrap:wrap}
+.badge{display:inline-block;background:#e8eee8;color:#355048;border-radius:999px;padding:5px 9px;font-size:.78rem;font-weight:900}
+.badge.final{background:#fff0c9;color:#73500b;border:1px solid #dfb85b}
+.quiz-title{font-family:Georgia,serif;color:var(--green);margin:7px 0 0}
+.timerbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:13px 0 7px}
+.timer{background:#efeee7;border:1px solid #d8d2c5;border-radius:999px;padding:7px 10px;font-size:.87rem}
+.timer strong{color:var(--green);font-variant-numeric:tabular-nums}
+.progress{height:10px;background:#e4dfd5;border-radius:99px;overflow:hidden;margin:12px 0}
+.progress span{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--gold),var(--rust),var(--green2))}
+.phase{margin:12px 0 2px;font-size:.82rem;font-weight:900;color:var(--green)}
+.qnum{font-weight:900;color:var(--rust);margin:8px 0 7px}
+.question{font-weight:800;font-size:1.12rem;line-height:1.52;text-align:left;white-space:pre-line}
+.options{display:grid;gap:9px;margin-top:15px;text-align:left}
+.opt{
+ width:100%;background:#fff;border:1px solid #cfc6b6;border-radius:13px;padding:12px 13px;
+ display:flex;gap:10px;justify-content:flex-start;align-items:flex-start;text-align:left;
+ color:var(--ink);font-weight:650;line-height:1.42
+}
+.opt span:last-child{flex:1;display:block;text-align:left}
+.opt .letter{
+ flex:0 0 28px;height:28px;border-radius:50%;background:#eee9de;
+ display:grid;place-items:center;color:var(--green);font-weight:900
+}
+.opt.correct{background:#dff2e7;border-color:#5aa378}
+.opt.wrong{background:#fae1e1;border-color:#c46b6b}
+.opt:disabled{cursor:default}
+.feedback{margin-top:13px;padding:12px;border-radius:11px;font-weight:750;line-height:1.45}
+.feedback.ok{background:#e0f3e8;color:#155b39;border:1px solid #9bc9ad}
+.feedback.no{background:#f8e1e1;color:#7c2020;border:1px solid #ddb0b0}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:13px}
+.score{font:700 clamp(2.5rem,7vw,4rem) Georgia,serif;color:var(--green);margin:5px 0}
+.metrics{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.metric{background:#efece4;border-radius:10px;padding:8px 10px;font-size:.88rem}
+.mistake{border-left:4px solid var(--bad);background:#fff2f2;padding:10px 12px;border-radius:8px;margin:8px 0;line-height:1.45}
+table{width:100%;border-collapse:collapse;font-size:.88rem}
+th,td{padding:9px 7px;border-bottom:1px solid #ddd6c9;text-align:left;vertical-align:top}
+th{background:#eee9df;color:var(--green)}
+.tablewrap{overflow:auto}
+.note{background:#fff1cf;border-left:5px solid var(--gold);padding:11px 13px;border-radius:9px;line-height:1.45}
+footer{text-align:center;padding:25px;color:#6d756f;font-size:.82rem}
+@media(max-width:600px){
+ .sessions{grid-template-columns:1fr}.link-stack{grid-template-columns:1fr}
+ input{width:100%;min-width:0}.namebox{width:100%}
+}
+</style>
+</head>
+<body>
+<header>
+<div class="wrap headrow">
+ <div class="ap10">AP10</div>
+ <div><h1>WEEK 1 INTERACTIVE REVIEWER</h1><p>5 Sesyon • YouTube Lesson + Interactive Practice</p></div>
+</div>
+</header>
+
+<main>
+<section id="home">
+ <div class="panel top">
+   <div class="namebox">
+     <strong>Pangalan:</strong>
+     <input id="studentName" type="text" placeholder="Ilagay ang pangalan">
+     <button class="btn light" id="saveNameBtn">I-save</button>
+   </div>
+   <button class="btn gold" id="dashboardBtn">Parent Dashboard</button>
+ </div>
+
+ <div class="panel intro"><h2>Pumili ng Sesyon</h2></div>
+ <div class="sessions">
+    <article class="session-card">
+      <div class="session-tag">SESYON 1</div>
+      <h2>Dinastiyang Politikal</h2>
+      <div class="link-stack">
+        <a class="action youtube" href="https://youtu.be/clUb-umRpIQ" target="_blank" rel="noopener noreferrer">▶ YouTube Lesson</a>
+        <a class="action practice" href="#quiz" data-practice="d1">✎ Interactive Practice</a>
+      </div>
+      <div class="session-status" id="status-d1">Wala pang attempt.</div>
+    </article>
+
+    <article class="session-card">
+      <div class="session-tag">SESYON 2</div>
+      <h2>Pag-iral at Pagpapatuloy ng Dinastiyang Politikal</h2>
+      <div class="link-stack">
+        <a class="action youtube" href="https://youtu.be/4rdzGb9Kndo" target="_blank" rel="noopener noreferrer">▶ YouTube Lesson</a>
+        <a class="action practice" href="#quiz" data-practice="d2">✎ Interactive Practice</a>
+      </div>
+      <div class="session-status" id="status-d2">Wala pang attempt.</div>
+    </article>
+
+    <article class="session-card">
+      <div class="session-tag">SESYON 3</div>
+      <h2>Dinastiyang Politikal: Push Factors at mga Instrumento sa Pagtatatag</h2>
+      <div class="link-stack">
+        <a class="action youtube" href="https://youtu.be/viV9F11hi-A" target="_blank" rel="noopener noreferrer">▶ YouTube Lesson</a>
+        <a class="action practice" href="#quiz" data-practice="d3">✎ Interactive Practice</a>
+      </div>
+      <div class="session-status" id="status-d3">Wala pang attempt.</div>
+    </article>
+
+    <article class="session-card">
+      <div class="session-tag">SESYON 4</div>
+      <h2>Mga Epekto ng Dinastiyang Politikal</h2>
+      <div class="link-stack">
+        <a class="action youtube" href="https://youtu.be/ja5LgrVP9RQ" target="_blank" rel="noopener noreferrer">▶ YouTube Lesson</a>
+        <a class="action practice" href="#quiz" data-practice="d4">✎ Interactive Practice</a>
+      </div>
+      <div class="session-status" id="status-d4">Wala pang attempt.</div>
+    </article>
+
+    <article class="session-card">
+      <div class="session-tag">SESYON 5</div>
+      <h2>Tugon sa Hamon ng Dinastiyang Politikal</h2>
+      <div class="link-stack">
+        <span class="action youtube disabled" aria-disabled="true">▶ YouTube — To Follow</span>
+        <a class="action practice" href="#quiz" data-practice="d5">✎ Interactive Practice</a>
+      </div>
+      <div class="session-status" id="status-d5">Wala pang attempt.</div>
+    </article></div>
+</section>
+
+<section id="quiz" class="hidden">
+ <div class="panel">
+   <div class="quizhead">
+     <div><span id="quizBadge" class="badge"></span><h2 id="quizTitle" class="quiz-title"></h2></div>
+     <button class="btn light" id="homeFromQuiz">Home</button>
+   </div>
+   <div class="timerbar">
+     <span class="timer">⏱ Buong Review: <strong id="totalTimer">00:00</strong></span>
+     <span class="timer">Item: <strong id="itemTimer">00:00</strong></span>
+   </div>
+   <div class="progress"><span id="progressBar"></span></div>
+   <div id="questionArea"></div>
+ </div>
+</section>
+
+<section id="result" class="hidden">
+ <div class="panel">
+   <span class="badge">RESULTA</span>
+   <h2 id="resultTitle" class="quiz-title"></h2>
+   <div id="score" class="score"></div>
+   <div id="metrics" class="metrics"></div>
+   <div id="mistakes"></div>
+   <div class="row">
+     <button class="btn" id="repeatBtn">Ulitin ang Sesyon</button>
+     <button class="btn red" id="mistakesBtn">Ulitin ang Mali</button>
+     <button class="btn light" id="homeFromResult">Home</button>
+   </div>
+ </div>
+</section>
+
+<section id="dashboard" class="hidden">
+ <div class="panel">
+   <div class="quizhead">
+     <div><span class="badge">PARENT VIEW</span><h2 class="quiz-title">Progress Dashboard</h2></div>
+     <button class="btn light" id="homeFromDash">Home</button>
+   </div>
+   <p id="dashStudent"></p>
+   <div id="dashSummary" class="note"></div>
+   <div class="tablewrap" style="margin-top:14px">
+     <table>
+       <thead><tr><th>Sesyon</th><th>Latest</th><th>Best</th><th>Attempts</th><th>Average</th><th>Total Time</th><th>Mali</th><th>Practice</th></tr></thead>
+       <tbody id="dashRows"></tbody>
+     </table>
+   </div>
+   <div class="row">
+     <button class="btn gold" id="csvBtn">I-download ang Progress (CSV)</button>
+     <button class="btn red" id="resetBtn">Reset Progress</button>
+   </div>
+ </div>
+</section>
+</main>
+
+<footer>AP10 Week 1 Interactive Reviewer • GitHub-ready</footer>
+
+<script>
+var DATA={"days": {"d1": {"short": "Sesyon 1", "title": "Dinastiyang Politikal", "youtube": "https://youtu.be/clUb-umRpIQ", "practice": [{"activity": "PUWESTO-PUWESTO, SINO-SINO ANG MAY HAWAK?", "q": "Basahin ang sitwasyon. ALING PAG-UURI ANG PINAKATUMPAK batay sa sabay-sabay na paghawak ng mahahalagang posisyon?\n\nAng alkalde, bise alkalde, at tatlong konsehal sa isang bayan ay magkakamag-anak.", "options": ["MONOPOLYO SA KAPANGYARIHAN", "HINDI MALINAW NA MONOPOLYO", "SIKLO NG PANUNUNGKULAN", "PATRONAGE POLITICS"], "answer": "MONOPOLYO SA KAPANGYARIHAN"}, {"activity": "PUWESTO-PUWESTO, SINO-SINO ANG MAY HAWAK?", "q": "Basahin ang sitwasyon. ALING PAG-UURI ANG PINAKATUMPAK batay sa sabay-sabay na paghawak ng mahahalagang posisyon?\n\nIsang miyembro lamang ng Pamilya Reyes ang kasalukuyang nanunungkulan bilang konsehal.", "options": ["MONOPOLYO SA KAPANGYARIHAN", "HINDI MALINAW NA MONOPOLYO", "SIKLO NG PANUNUNGKULAN", "PATRONAGE POLITICS"], "answer": "HINDI MALINAW NA MONOPOLYO"}, {"activity": "PUWESTO-PUWESTO, SINO-SINO ANG MAY HAWAK?", "q": "Basahin ang sitwasyon. ALING PAG-UURI ANG PINAKATUMPAK batay sa sabay-sabay na paghawak ng mahahalagang posisyon?\n\nAng gobernador, bise gobernador, at dalawang kinatawan ng distrito ay magkakapatid.", "options": ["MONOPOLYO SA KAPANGYARIHAN", "HINDI MALINAW NA MONOPOLYO", "SIKLO NG PANUNUNGKULAN", "PATRONAGE POLITICS"], "answer": "MONOPOLYO SA KAPANGYARIHAN"}, {"activity": "PUWESTO-PUWESTO, SINO-SINO ANG MAY HAWAK?", "q": "Basahin ang sitwasyon. ALING PAG-UURI ANG PINAKATUMPAK batay sa sabay-sabay na paghawak ng mahahalagang posisyon?\n\nAng mga opisyal sa isang munisipyo ay nagmula sa magkakaibang pamilya at walang napatunayang ugnayang pampamilya.", "options": ["MONOPOLYO SA KAPANGYARIHAN", "HINDI MALINAW NA MONOPOLYO", "SIKLO NG PANUNUNGKULAN", "PATRONAGE POLITICS"], "answer": "HINDI MALINAW NA MONOPOLYO"}, {"activity": "PUWESTO-PUWESTO, SINO-SINO ANG MAY HAWAK?", "q": "Basahin ang sitwasyon. ALING PAG-UURI ANG PINAKATUMPAK batay sa sabay-sabay na paghawak ng mahahalagang posisyon?\n\nAng alkalde at bise alkalde ay mag-asawa, habang konsehal naman ang dalawa nilang anak.", "options": ["MONOPOLYO SA KAPANGYARIHAN", "HINDI MALINAW NA MONOPOLYO", "SIKLO NG PANUNUNGKULAN", "PATRONAGE POLITICS"], "answer": "MONOPOLYO SA KAPANGYARIHAN"}, {"activity": "BAKAS NG KAPANGYARIHAN: KONSEPTO ANG PANGALANAN!", "q": "ALING KONSEPTO O KATANGIAN ang inilalarawan?\n\nPagkatapos ng termino ng ama bilang alkalde, ang kaniyang asawa ang nahalal. Pagkatapos nito, ang kanilang anak naman ang humawak sa puwesto.", "options": ["SIKLO NG PANUNUNGKULAN", "MONOPOLYO SA KAPANGYARIHAN", "PATRONAGE POLITICS", "DINASTIYANG POLITIKAL"], "answer": "SIKLO NG PANUNUNGKULAN"}, {"activity": "BAKAS NG KAPANGYARIHAN: KONSEPTO ANG PANGALANAN!", "q": "ALING KONSEPTO O KATANGIAN ang inilalarawan?\n\nIto ang batas na nagtatag ng mga reporma upang maging mas makabuluhan ang pakikilahok ng kabataan sa lokal na pamamahala at pagbuo ng bansa.", "options": ["RA NO. 10742 O SANGGUNIANG KABATAAN REFORM ACT OF 2015", "1987 SALIGANG BATAS", "LOCAL GOVERNMENT CODE", "OMNIBUS ELECTION CODE"], "answer": "RA NO. 10742 O SANGGUNIANG KABATAAN REFORM ACT OF 2015"}, {"activity": "BAKAS NG KAPANGYARIHAN: KONSEPTO ANG PANGALANAN!", "q": "ALING KONSEPTO O KATANGIAN ang inilalarawan?\n\nAng alkalde, bise alkalde, at tatlong konsehal sa isang bayan ay magkakamag-anak at sabay-sabay na nanunungkulan.", "options": ["MONOPOLYO SA KAPANGYARIHAN", "SIKLO NG PANUNUNGKULAN", "PATRONAGE POLITICS", "HINDI SAPAT ANG IMPORMASYON"], "answer": "MONOPOLYO SA KAPANGYARIHAN"}, {"activity": "BAKAS NG KAPANGYARIHAN: KONSEPTO ANG PANGALANAN!", "q": "ALING KONSEPTO O KATANGIAN ang inilalarawan?\n\nSa loob ng maraming taon, sabay-sabay o sunod-sunod na humahawak sa mga pampublikong posisyon ang mga miyembro ng iisang pamilya.", "options": ["DINASTIYANG POLITIKAL", "PATRONAGE POLITICS", "MONOPOLYO SA KAPANGYARIHAN", "PARTIDONG POLITIKAL"], "answer": "DINASTIYANG POLITIKAL"}, {"activity": "BAKAS NG KAPANGYARIHAN: KONSEPTO ANG PANGALANAN!", "q": "ALING KONSEPTO O KATANGIAN ang inilalarawan?\n\nMga tagasuporta lamang ng isang opisyal ang isinama sa listahan ng mga tatanggap ng tulong.", "options": ["PATRONAGE POLITICS", "SIKLO NG PANUNUNGKULAN", "MONOPOLYO SA KAPANGYARIHAN", "DINASTIYANG POLITIKAL"], "answer": "PATRONAGE POLITICS"}], "final": [{"activity": "FINAL 5 • ASSESSMENT", "q": "Pantay na ipinamahagi ang tulong sa lahat ng kuwalipikadong residente. Gayunman, kitang-kita sa bawat relief pack ang pangalan at mukha ng isang kandidato. Aling impormasyon ang kailangan upang matukoy kung may patronage politics?", "options": ["Halaga ng tulong", "Kulay ng relief pack", "Dami ng mga benepisyaryo", "Pagkakaroon ng hinihinging suportang pampolitika"], "answer": "Pagkakaroon ng hinihinging suportang pampolitika"}, {"activity": "FINAL 5 • ASSESSMENT", "q": "Pagkatapos ng termino ni Andres bilang alkalde, nahalal sa parehong posisyon ang kaniyang asawa. Pagkatapos ng termino nito, nanalo naman ang kanilang anak. Walang ibang kapamilya ang sabay-sabay na humawak sa ibang posisyon. Aling katangian ang pinakamalinaw na ipinakikita?", "options": ["Patronage politics", "Siklo ng panunungkulan", "Monopolyo sa kapangyarihan", "Limitadong kompetisyon sa halalan"], "answer": "Siklo ng panunungkulan"}, {"activity": "FINAL 5 • ASSESSMENT", "q": "Sa Bayan ng Maunlad, sabay-sabay na nanunungkulan bilang alkalde, bise alkalde, at konsehal ang apat na kasapi ng iisang pamilya. Noon namang nakaraang termino, ibang pamilya ang humawak sa mga posisyon. Aling pagsusuri ang pinakatumpak batay sa kasalukuyang impormasyon?", "options": ["May patronage politics.", "May siklo ng panunungkulan.", "May monopolyo sa kapangyarihan.", "May matagal nang dinastiyang politikal sa bayan."], "answer": "May monopolyo sa kapangyarihan."}, {"activity": "FINAL 5 • ASSESSMENT", "q": "Labingwalong taong gulang si Maya at may mahusay na rekord sa youth service. Nais niyang tumakbo bilang SK chairperson, ngunit ang kaniyang kapatid ang kasalukuyang nahalal na punong barangay sa parehong barangay. Aling pasya ang pinakatumpak?", "options": ["Hindi siya maaaring tumakbo.", "Maaari siya dahil nasa wastong edad.", "Maaari siya dahil napatunayan ang kakayahan.", "Hindi mahalaga ang ugnayan kung suportado siya ng kabataan."], "answer": "Hindi siya maaaring tumakbo."}, {"activity": "FINAL 5 • ASSESSMENT", "q": "Hindi maaaring tumakbo si Maya bilang SK chairperson dahil sa legal na restriksyon. Nais pa rin niyang maisulong ang mental health program para sa kabataan. Aling kilos ang pinakamakabuluhan?", "options": ["Maghintay sa susunod na halalan.", "Ipagawa sa kapatid ang kaniyang programa.", "Magmungkahi ng proyekto sa youth assembly.", "Ipagpilitan ang kandidatura dahil mahusay ang layunin."], "answer": "Magmungkahi ng proyekto sa youth assembly."}]}, "d2": {"short": "Sesyon 2", "title": "Pag-iral at Pagpapatuloy ng Dinastiyang Politikal", "youtube": "https://youtu.be/4rdzGb9Kndo", "practice": [{"activity": "SINO, ANO, AT SAANG YUGTO?", "q": "ALING TERMINO ang inilalarawan?\n\nUring lokal na elite na kinilala at nagkaroon ng mahalagang papel sa pamahalaang bayan noong panahon ng Espanyol.", "options": ["PRINCIPALIA", "ELITE", "ANGKAN", "PARTIDONG POLITIKAL"], "answer": "PRINCIPALIA"}, {"activity": "SINO, ANO, AT SAANG YUGTO?", "q": "ALING TERMINO ang inilalarawan?\n\nProseso ng pagpili ng mga opisyal sa pamamagitan ng pagboto.", "options": ["HALALAN", "POLITICAL NETWORK", "PARTIDONG POLITIKAL", "DINASTIYANG POLITIKAL"], "answer": "HALALAN"}, {"activity": "SINO, ANO, AT SAANG YUGTO?", "q": "ALING TERMINO ang inilalarawan?\n\nPangkat ng mga taong magkakaugnay sa pamamagitan ng pamilya o kamag-anak.", "options": ["ANGKAN", "PRINCIPALIA", "ELITE", "POLITICAL NETWORK"], "answer": "ANGKAN"}, {"activity": "SINO, ANO, AT SAANG YUGTO?", "q": "ALING TERMINO ang inilalarawan?\n\nLokal na opisyal na namamahala sa isang barangay sa ilalim ng pamahalaang Espanyol.", "options": ["CABEZA DE BARANGAY", "GOBERNADORCILLO", "DATU", "RAJA"], "answer": "CABEZA DE BARANGAY"}, {"activity": "SINO, ANO, AT SAANG YUGTO?", "q": "ALING TERMINO ang inilalarawan?\n\nKalagayang ang magkakamag-anak ay sabay-sabay o sunod-sunod na humahawak ng mga posisyong pampolitika.", "options": ["DINASTIYANG POLITIKAL", "PARTIDONG POLITIKAL", "POLITICAL NETWORK", "HALALAN"], "answer": "DINASTIYANG POLITIKAL"}, {"activity": "SINO, ANO, AT SAANG YUGTO?", "q": "ALING TERMINO ang inilalarawan?\n\nPinuno ng isang barangay o pamayanan sa maraming sinaunang pamayanan sa Pilipinas.", "options": ["DATU", "GOBERNADORCILLO", "CABEZA DE BARANGAY", "PRINCIPALIA"], "answer": "DATU"}, {"activity": "SINO, ANO, AT SAANG YUGTO?", "q": "ALING TERMINO ang inilalarawan?\n\nOrganisasyong nagtataguyod ng mga kandidato, programa, at layuning pampolitika.", "options": ["PARTIDONG POLITIKAL", "POLITICAL NETWORK", "HALALAN", "ANGKAN"], "answer": "PARTIDONG POLITIKAL"}, {"activity": "SINO, ANO, AT SAANG YUGTO?", "q": "ALING TERMINO ang inilalarawan?\n\nPangunahing lokal na opisyal ng isang bayan sa ilalim ng pamahalaang Espanyol.", "options": ["GOBERNADORCILLO", "CABEZA DE BARANGAY", "DATU", "PRINCIPALIA"], "answer": "GOBERNADORCILLO"}, {"activity": "SINO, ANO, AT SAANG YUGTO?", "q": "ALING TERMINO ang inilalarawan?\n\nMaliit na pangkat na may malaking yaman, katayuan, o impluwensiya sa lipunan at politika.", "options": ["ELITE", "ANGKAN", "PRINCIPALIA", "POLITICAL NETWORK"], "answer": "ELITE"}, {"activity": "SINO, ANO, AT SAANG YUGTO?", "q": "ALING TERMINO ang inilalarawan?\n\nUgnayan ng mga tao, grupo, at organisasyong maaaring makatulong sa pagbuo at pagpapanatili ng suportang pampolitika.", "options": ["POLITICAL NETWORK", "PARTIDONG POLITIKAL", "ANGKAN", "HALALAN"], "answer": "POLITICAL NETWORK"}], "final": [{"activity": "FINAL 5 • ASSESSMENT", "q": "Sa mapa, makikita ang iba’t ibang antas ng konsentrasyon ng dinastiyang politikal sa Luzon, Visayas, at Mindanao. May mga lugar na mas mataas ang konsentrasyon kaysa sa iba. Aling kongklusyon ang pinakasuportado ng mapa?", "options": ["Pantay ang antas ng dinastiyang politikal sa lahat ng rehiyon ng bansa.", "Sa mga lalawigan lamang umiiral ang mga pamilyang may kapangyarihang pampolitika.", "Malawak ang presensiya nito ngunit magkakaiba ang antas ng konsentrasyon sa bawat lugar.", "Sa iisang bahagi lamang ng bansa makikita ang mataas na konsentrasyon ng mga dinastiya."], "answer": "Malawak ang presensiya nito ngunit magkakaiba ang antas ng konsentrasyon sa bawat lugar."}, {"activity": "FINAL 5 • ASSESSMENT", "q": "Sa isang sinaunang pamayanan, napunta sa kamag-anak ng datu ang pamumuno. Sa ibang pamayanan naman, may ibang paraan ng pagpili o pagpapalit ng pinuno. Ano ang pinakamakatwirang pagsusuri?", "options": ["May ugnayan ang angkan at pamumuno, ngunit hindi pare-pareho ang sistema sa lahat ng pamayanan.", "Ganap nang umiiral noon ang kaparehong anyo ng dinastiyang politikal na nakikita sa kasalukuyan.", "Ang lahat ng sinaunang pinuno ay awtomatikong naghahalili batay lamang sa kanilang ugnayang pampamilya.", "Walang kinalaman ang katayuan at ugnayang pampamilya sa paraan ng pamumuno noong sinaunang panahon."], "answer": "May ugnayan ang angkan at pamumuno, ngunit hindi pare-pareho ang sistema sa lahat ng pamayanan."}, {"activity": "FINAL 5 • ASSESSMENT", "q": "Sa panahon ng Espanyol, ang isang lokal na pamilya ay may lupa, mataas na katayuan, at kasaping naging bahagi ng principalia at humawak ng posisyon sa bayan. Ano ang pinakamalinaw na ipinakikita ng sitwasyon?", "options": ["Ganap na nawala ang impluwensiya ng mga lokal na pamilya nang maitatag ang kolonyal na pamahalaan.", "Naging pantay ang pagkakataong pampolitika dahil bukas sa lahat ang mga posisyon sa pamahalaang bayan.", "Tanging pagmamay-ari ng lupa ang naging batayan ng pagkakaroon ng impluwensiya sa pamahalaang kolonyal.", "Naisama ang ilang lokal na elite sa kolonyal na sistema at nakapagpanatili ng kanilang impluwensiya."], "answer": "Naisama ang ilang lokal na elite sa kolonyal na sistema at nakapagpanatili ng kanilang impluwensiya."}, {"activity": "FINAL 5 • ASSESSMENT", "q": "Sa panahon ng Amerikano, pinalawak ang halalan at partidong politikal. Gayunman, maraming edukado, may kaya, at dati nang maimpluwensiyang pamilya ang nakapasok sa bagong sistemang elektoral. Aling pagsusuri ang pinakatumpak?", "options": ["Tuluyang napalitan ng bagong uri ng lider ang lahat ng dating makapangyarihang pamilya.", "Nagbago ang paraan ng pagkamit ng posisyon habang nakapag-angkop ang ilang dating elite.", "Nawala ang halaga ng yaman at koneksiyon nang magsimulang gamitin ang sistemang elektoral.", "Naging pareho ang pagkakataon ng lahat ng mamamayan dahil ipinakilala ang halalan at partido."], "answer": "Nagbago ang paraan ng pagkamit ng posisyon habang nakapag-angkop ang ilang dating elite."}, {"activity": "FINAL 5 • ASSESSMENT", "q": "Matapos suriin ang sinaunang pamayanan, panahon ng Espanyol, at panahon ng Amerikano, sinabi ng isang mag-aaral: “Kung malalim ang ugat nito sa kasaysayan, wala nang posibilidad na magbago ang sistema.” Aling tugon ang pinakatumpak?", "options": ["Tama, sapagkat ang anumang sistemang may historikal na pinagmulan ay hindi na maaaring magbago.", "Tama, sapagkat ipinakikita ng kasaysayan na iisa lamang ang paraan ng pagpapanatili ng kapangyarihan.", "Hindi, sapagkat ipinakikita rin ng kasaysayan na nagbabago ang mga institusyon at paraan ng paggamit ng kapangyarihan.", "Hindi, sapagkat walang kaugnayan ang mga pangyayari sa nakaraan sa mga sistemang pampolitika sa kasalukuyan."], "answer": "Hindi, sapagkat ipinakikita rin ng kasaysayan na nagbabago ang mga institusyon at paraan ng paggamit ng kapangyarihan."}]}, "d3": {"short": "Sesyon 3", "title": "Dinastiyang Politikal: Push Factors at mga Instrumento sa Pagtatatag", "youtube": "https://youtu.be/viV9F11hi-A", "practice": [{"activity": "7K — MGA PUSH FACTOR", "q": "ALING PUSH FACTOR NG PAGPAPATULOY NG DINASTIYANG POLITIKAL ang inilalarawan?\n\nKinikilala ang usapin ng dinastiyang politikal, ngunit nananatiling hamon ang pagkakaroon ng pangkalahatang batas na malinaw na nagtatakda ng depinisyon, saklaw, at limitasyon nito.", "options": ["K4 — KAWALAN NG PANGKALAHATANG BATAS LABAN SA DINASTIYANG POLITIKAL", "K2 — KAHIRAPAN AT KALAGAYANG PANLIPUNAN-PANGKABUHAYAN", "K3 — KAKULANGAN NG KAALAMAN O IMPORMASYON", "K5 — KAYAMANAN AT KAPANGYARIHANG PAMPOLITIKA"], "answer": "K4 — KAWALAN NG PANGKALAHATANG BATAS LABAN SA DINASTIYANG POLITIKAL"}, {"activity": "7K — MGA PUSH FACTOR", "q": "ALING PUSH FACTOR NG PAGPAPATULOY NG DINASTIYANG POLITIKAL ang inilalarawan?\n\nSa isang komunidad na limitado ang trabaho at kabuhayan, nagiging mahalaga sa ilang pamilya ang agarang tulong na naibibigay ng mga politiko sa panahon ng pangangailangan.", "options": ["K2 — KAHIRAPAN AT KALAGAYANG PANLIPUNAN-PANGKABUHAYAN", "K3 — KAKULANGAN NG KAALAMAN O IMPORMASYON", "K4 — KAWALAN NG PANGKALAHATANG BATAS LABAN SA DINASTIYANG POLITIKAL", "K5 — KAYAMANAN AT KAPANGYARIHANG PAMPOLITIKA"], "answer": "K2 — KAHIRAPAN AT KALAGAYANG PANLIPUNAN-PANGKABUHAYAN"}, {"activity": "7K — MGA PUSH FACTOR", "q": "ALING PUSH FACTOR NG PAGPAPATULOY NG DINASTIYANG POLITIKAL ang inilalarawan?\n\nPara sa ilang politiko, hindi lamang serbisyo ang kaakibat ng posisyon; kasama rin dito ang prestihiyo, impluwensiya, koneksiyon, at kapangyarihang nais nilang mapanatili.", "options": ["K6 — KARANGALAN AT KAPANGYARIHAN NG POSISYON", "K4 — KAWALAN NG PANGKALAHATANG BATAS LABAN SA DINASTIYANG POLITIKAL", "K5 — KAYAMANAN AT KAPANGYARIHANG PAMPOLITIKA", "K7 — KAISIPANG IPAGPATULOY ANG POLITICAL LEGACY NG PAMILYA"], "answer": "K6 — KARANGALAN AT KAPANGYARIHAN NG POSISYON"}, {"activity": "7K — MGA PUSH FACTOR", "q": "ALING PUSH FACTOR NG PAGPAPATULOY NG DINASTIYANG POLITIKAL ang inilalarawan?\n\nMaraming mamamayan ang pamilyar sa pangalan ng isang kandidato, ngunit kakaunti ang nakaaalam sa kaniyang rekord, plataporma, at kakayahan.", "options": ["K3 — KAKULANGAN NG KAALAMAN O IMPORMASYON", "K5 — KAYAMANAN AT KAPANGYARIHANG PAMPOLITIKA", "K6 — KARANGALAN AT KAPANGYARIHAN NG POSISYON", "K7 — KAISIPANG IPAGPATULOY ANG POLITICAL LEGACY NG PAMILYA"], "answer": "K3 — KAKULANGAN NG KAALAMAN O IMPORMASYON"}, {"activity": "7K — MGA PUSH FACTOR", "q": "ALING PUSH FACTOR NG PAGPAPATULOY NG DINASTIYANG POLITIKAL ang inilalarawan?\n\nHabang papalapit sa pagtatapos ng termino ng isang opisyal, unti-unti namang ipinakikilala ang kaniyang anak bilang “magpapatuloy ng nasimulan ng pamilya.”", "options": ["K7 — KAISIPANG IPAGPATULOY ANG POLITICAL LEGACY NG PAMILYA", "K6 — KARANGALAN AT KAPANGYARIHAN NG POSISYON", "K1 — KAHINAAN NG SISTEMANG PAMPOLITIKA", "K2 — KAHIRAPAN AT KALAGAYANG PANLIPUNAN-PANGKABUHAYAN"], "answer": "K7 — KAISIPANG IPAGPATULOY ANG POLITICAL LEGACY NG PAMILYA"}, {"activity": "7K — MGA PUSH FACTOR", "q": "ALING PUSH FACTOR NG PAGPAPATULOY NG DINASTIYANG POLITIKAL ang inilalarawan?\n\nMahina ang ilang institusyong dapat nagsisilbing panimbang sa kapangyarihan kaya nananatiling malakas ang impluwensiya ng iilang grupo sa mahahalagang pasya.", "options": ["K1 — KAHINAAN NG SISTEMANG PAMPOLITIKA", "K7 — KAISIPANG IPAGPATULOY ANG POLITICAL LEGACY NG PAMILYA", "K2 — KAHIRAPAN AT KALAGAYANG PANLIPUNAN-PANGKABUHAYAN", "K3 — KAKULANGAN NG KAALAMAN O IMPORMASYON"], "answer": "K1 — KAHINAAN NG SISTEMANG PAMPOLITIKA"}, {"activity": "7K — MGA PUSH FACTOR", "q": "ALING PUSH FACTOR NG PAGPAPATULOY NG DINASTIYANG POLITIKAL ang inilalarawan?\n\nMalaki ang yaman at resources ng isang pamilyang matagal nang aktibo sa politika kaya mayroon itong kakayahang mapanatili at mapalawak ang mga koneksiyon at pampolitikang impluwensiya.", "options": ["K5 — KAYAMANAN AT KAPANGYARIHANG PAMPOLITIKA", "K1 — KAHINAAN NG SISTEMANG PAMPOLITIKA", "K2 — KAHIRAPAN AT KALAGAYANG PANLIPUNAN-PANGKABUHAYAN", "K3 — KAKULANGAN NG KAALAMAN O IMPORMASYON"], "answer": "K5 — KAYAMANAN AT KAPANGYARIHANG PAMPOLITIKA"}, {"activity": "5P — MGA INSTRUMENTO", "q": "ALING INSTRUMENTO NG PAGPAPALAKAS NG IMPLUWENSIYA ang inilalarawan?\n\nHalos araw-araw nakikita o naririnig ang pangalan ng kandidato sa telebisyon, radyo, social media, billboards, at political advertisements.", "options": ["P3 — PAGPAPAKILALA SA MEDIA", "P2 — PAMPOLITIKANG MAKINARYA", "P4 — PAKIKIPAG-ALYANSA / PAG-AASAWA", "P5 — PANLILIGALIG AT PAGPATAY"], "answer": "P3 — PAGPAPAKILALA SA MEDIA"}, {"activity": "5P — MGA INSTRUMENTO", "q": "ALING INSTRUMENTO NG PAGPAPALAKAS NG IMPLUWENSIYA ang inilalarawan?\n\nDalawang maimpluwensiyang pamilyang politikal ang nagkaroon ng mas malapit na ugnayan at kalaunan ay nagsanib ang ilan sa kanilang supporters, contacts, at political networks.", "options": ["P4 — PAKIKIPAG-ALYANSA / PAG-AASAWA", "P3 — PAGPAPAKILALA SA MEDIA", "P5 — PANLILIGALIG AT PAGPATAY", "P1 — PERA"], "answer": "P4 — PAKIKIPAG-ALYANSA / PAG-AASAWA"}, {"activity": "5P — MGA INSTRUMENTO", "q": "ALING INSTRUMENTO NG PAGPAPALAKAS NG IMPLUWENSIYA ang inilalarawan?\n\nMalaking halaga ang inilaan sa advertisements, campaign materials, sasakyan, headquarters, organizers, at iba pang gastusin upang mapalawak ang kampanya.", "options": ["P1 — PERA", "P4 — PAKIKIPAG-ALYANSA / PAG-AASAWA", "P5 — PANLILIGALIG AT PAGPATAY", "P2 — PAMPOLITIKANG MAKINARYA"], "answer": "P1 — PERA"}, {"activity": "5P — MGA INSTRUMENTO", "q": "ALING INSTRUMENTO NG PAGPAPALAKAS NG IMPLUWENSIYA ang inilalarawan?\n\nIsang kandidato ang nakaranas ng seryosong pagbabanta at pananakot upang mapilitan siyang umurong o bawasan ang kaniyang pangangampanya.", "options": ["P5 — PANLILIGALIG AT PAGPATAY", "P1 — PERA", "P2 — PAMPOLITIKANG MAKINARYA", "P3 — PAGPAPAKILALA SA MEDIA"], "answer": "P5 — PANLILIGALIG AT PAGPATAY"}, {"activity": "5P — MGA INSTRUMENTO", "q": "ALING INSTRUMENTO NG PAGPAPALAKAS NG IMPLUWENSIYA ang inilalarawan?\n\nMay campaign managers, coordinators, volunteers, local contacts, at poll watchers na organisadong kumikilos sa iba’t ibang lugar para sa isang kandidato.", "options": ["P2 — PAMPOLITIKANG MAKINARYA", "P1 — PERA", "P3 — PAGPAPAKILALA SA MEDIA", "P4 — PAKIKIPAG-ALYANSA / PAG-AASAWA"], "answer": "P2 — PAMPOLITIKANG MAKINARYA"}], "final": [{"activity": "FINAL 5 • ASSESSMENT", "q": "Matagal nang usapin sa bansa ang pagkakaroon ng magkakamag-anak na sabay-sabay o sunod-sunod na humahawak ng elective positions. Gayunman, nananatiling hamon ang pagkakaroon ng pangkalahatang batas na malinaw na magtatakda ng depinisyon, saklaw, at limitasyon nito. Aling salik ang tuwirang tinutukoy?", "options": ["Kawalan ng pangkalahatang batas laban sa dinastiyang politikal", "Kakulangan ng kaalaman ng mga mamamayan tungkol sa mga kandidato", "Kahinaan ng mga institusyong nagpapatupad ng mga programang pampamahalaan", "Kaisipang dapat ipagpatuloy ng susunod na henerasyon ang political legacy ng pamilya"], "answer": "Kawalan ng pangkalahatang batas laban sa dinastiyang politikal"}, {"activity": "FINAL 5 • ASSESSMENT", "q": "Isang ama ang nawalan ng trabaho at kailangang bumili agad ng gamot para sa anak. Ilang araw bago ang halalan, may grupong namimigay ng pera habang ipinapaalala kung sino ang dapat suportahan. Hindi siya komportable, ngunit kailangan ng pamilya ang pera. Ano ang pinakamahalagang salik na dapat makita sa sitwasyon?", "options": ["Political legacy ng pamilya", "Kahirapan at kalagayang panlipunan-pangkabuhayan", "Pagpapakilala sa kandidato sa pamamagitan ng media", "Kakulangan ng batas na naglilimita sa magkakamag-anak sa politika"], "answer": "Kahirapan at kalagayang panlipunan-pangkabuhayan"}, {"activity": "FINAL 5 • ASSESSMENT", "q": "Kilalang-kilala ng mga residente ang apelyido ng isang kandidato dahil ilang dekada nang nasa politika ang kaniyang pamilya. Nang tanungin ang ilang botante tungkol sa kaniyang plataporma, rekord, at mga posisyon sa mahahalagang isyu, karamihan ay hindi makasagot. Ano ang pangunahing suliraning makikita rito?", "options": ["Kulang ang pera sa kampanya.", "Mahina ang pampolitikang makinarya.", "Kulang ang sapat na kaalaman o impormasyong ginagamit sa pagsusuri sa kandidato.", "Walang pagkakataong magkaroon ng ibang kandidatong maaaring makipagkompetensiya sa halalan."], "answer": "Kulang ang sapat na kaalaman o impormasyong ginagamit sa pagsusuri sa kandidato."}, {"activity": "FINAL 5 • ASSESSMENT", "q": "Sa isang mainit na lokal na halalan, may kandidatong nakatanggap ng paulit-ulit na pagbabanta. Dahil sa pangamba sa kaligtasan ng pamilya, huminto siya sa ilang campaign activities at umiwas sa ilang lugar. Anong instrumento ang pinakatumpak na inilalarawan?", "options": ["Pera", "Political machinery", "Panliligalig at pananakot sa katunggaling pampolitika", "Pagpapalawak ng impluwensiya sa pamamagitan ng media at pampublikong pagkakakilala"], "answer": "Panliligalig at pananakot sa katunggaling pampolitika"}, {"activity": "FINAL 5 • ASSESSMENT", "q": "Sa isang lalawigan, kapansin-pansing magkakasabay ang kahirapan, limitadong access sa impormasyon, matagal nang political family, malawak na campaign organization, at mataas na media visibility. Aling kongklusyon ang pinakaingat at pinakamatibay?", "options": ["Isang dahilan lamang ang tunay na mahalaga.", "Maaaring magsanib ang iba’t ibang salik at instrumento upang mapanatili ang pampolitikang impluwensiya.", "Kapag may kahirapan at malakas na campaign machinery, tiyak na mananatili sa kapangyarihan ang parehong pamilya.", "Kapag kilala ang isang pamilya at malawak ang kanilang resources, hindi na mahalaga ang ibang kondisyong pampolitika at panlipunan."], "answer": "Maaaring magsanib ang iba’t ibang salik at instrumento upang mapanatili ang pampolitikang impluwensiya."}]}, "d4": {"short": "Sesyon 4", "title": "Mga Epekto ng Dinastiyang Politikal", "youtube": "https://youtu.be/ja5LgrVP9RQ", "practice": [{"activity": "BUNGA NG KAPANGYARIHAN: KILALANIN", "q": "ALING TERMINO ang inilalarawan?\n\nPagbibigay o pangangako ng pera, produkto, serbisyo, o pakinabang upang maimpluwensiyahan ang boto.", "options": ["VOTE BUYING", "CORRUPTION", "NEPOTISMO", "ELECTION OFFENSE"], "answer": "VOTE BUYING"}, {"activity": "BUNGA NG KAPANGYARIHAN: KILALANIN", "q": "ALING TERMINO ang inilalarawan?\n\nPang-aabuso sa ipinagkatiwalang kapangyarihan o paggamit ng yaman ng pamahalaan para sa pribadong interes.", "options": ["CORRUPTION", "NEPOTISMO", "ELECTION OFFENSE", "KRONYISMO"], "answer": "CORRUPTION"}, {"activity": "BUNGA NG KAPANGYARIHAN: KILALANIN", "q": "ALING TERMINO ang inilalarawan?\n\nAng isang opisyal ay nagtalaga ng kapatid sa posisyon kahit may aplikanteng higit na kuwalipikado.", "options": ["NEPOTISMO", "ELECTION OFFENSE", "KRONYISMO", "POLITICAL INEQUALITY"], "answer": "NEPOTISMO"}, {"activity": "BUNGA NG KAPANGYARIHAN: KILALANIN", "q": "ALING TERMINO ang inilalarawan?\n\nMga gawaing lumalabag sa mga batas at tuntunin ng halalan.", "options": ["ELECTION OFFENSE", "KRONYISMO", "POLITICAL INEQUALITY", "VOTE SELLING"], "answer": "ELECTION OFFENSE"}, {"activity": "BUNGA NG KAPANGYARIHAN: KILALANIN", "q": "ALING TERMINO ang inilalarawan?\n\nIsang malapit na kaibigan at kaalyado ng opisyal ang binigyan ng posisyon kahit mas angkop ang kakayahan ng ibang aplikante.", "options": ["KRONYISMO", "POLITICAL INEQUALITY", "VOTE SELLING", "GRAFT"], "answer": "KRONYISMO"}, {"activity": "BUNGA NG KAPANGYARIHAN: KILALANIN", "q": "ALING TERMINO ang inilalarawan?\n\nHindi pantay na pagkakataong makilahok, makipagkompetensiya, maglingkod, at magkaroon ng impluwensiya sa politika.", "options": ["POLITICAL INEQUALITY", "VOTE SELLING", "GRAFT", "ELECTIONEERING / IPINAGBABAWAL NA PANGANGAMPANYA"], "answer": "POLITICAL INEQUALITY"}, {"activity": "BUNGA NG KAPANGYARIHAN: KILALANIN", "q": "ALING TERMINO ang inilalarawan?\n\nPagtanggap o paghingi ng pera o pakinabang kapalit ng boto.", "options": ["VOTE SELLING", "GRAFT", "ELECTIONEERING / IPINAGBABAWAL NA PANGANGAMPANYA", "VOTE BUYING"], "answer": "VOTE SELLING"}, {"activity": "BUNGA NG KAPANGYARIHAN: KILALANIN", "q": "ALING TERMINO ang inilalarawan?\n\nHindi wastong paggamit ng katungkulan upang makakuha ng personal na pakinabang.", "options": ["GRAFT", "ELECTIONEERING / IPINAGBABAWAL NA PANGANGAMPANYA", "VOTE BUYING", "CORRUPTION"], "answer": "GRAFT"}, {"activity": "BUNGA NG KAPANGYARIHAN: KILALANIN", "q": "ALING TERMINO ang inilalarawan?\n\nIpinagbabawal na propaganda o pangangampanya upang maimpluwensiyahan ang botante sa oras o lugar na hindi ito pinahihintulutan.", "options": ["ELECTIONEERING / IPINAGBABAWAL NA PANGANGAMPANYA", "VOTE BUYING", "CORRUPTION", "NEPOTISMO"], "answer": "ELECTIONEERING / IPINAGBABAWAL NA PANGANGAMPANYA"}], "final": [{"activity": "FINAL 5 • ASSESSMENT", "q": "May pondong inilaan sa limang silid-aralan, ngunit dalawa lamang ang natapos. Kamag-anak ng isang opisyal ang may-ari ng kompanyang nakakuha ng kontrata, ngunit wala pang inilalabas na audit findings. Alin ang pinakatumpak na pagsusuri?", "options": ["Napatunayan na ang korupsiyon dahil hindi natapos ang lahat ng silid-aralan.", "Napatunayan na ang nepotismo dahil kamag-anak ng opisyal ang kontratista.", "May mga red flag, ngunit kailangan pa ng audit at procurement records.", "May tiyak na graft dahil pinagsabay ang kakulangan at ugnayang pampamilya."], "answer": "May mga red flag, ngunit kailangan pa ng audit at procurement records."}, {"activity": "FINAL 5 • ASSESSMENT", "q": "Apat ang aplikante sa isang posisyon. Napili ang kamag-anak ng opisyal kahit mas mababa ang kuwalipikasyon nito kaysa sa isa pang aplikante. Aling detalye ang pinakamalakas na batayan upang masabing may nepotismo?", "options": ["Pinaboran ang kamag-anak kaysa sa aplikanteng higit na kuwalipikado.", "Isinama ang kamag-anak sa listahan ng mga aplikanteng kuwalipikado.", "Kulang sa ilang karanasan ang kamag-anak na nag-apply sa posisyon.", "Magkakilala ang opisyal at aplikanteng napili matapos ang pagsusuri."], "answer": "Pinaboran ang kamag-anak kaysa sa aplikanteng higit na kuwalipikado."}, {"activity": "FINAL 5 • ASSESSMENT", "q": "Nahihirapang makilala ang isang kuwalipikadong kandidato dahil limitado ang kaniyang pondo, media exposure, at makinarya kumpara sa dominanteng pamilyang politikal. Walang ebidensiya ng vote buying o ilegal na pangangampanya. Alin ang pinakamainam na pagsusuri?", "options": ["May political inequality, ngunit hindi pa napatutunayan ang election offense.", "May election offense, ngunit kailangan pang malaman kung sino ang gumawa nito.", "Patas ang halalan dahil walang naiulat na vote buying o ilegal na kampanya.", "Walang suliranin sa halalan dahil maaari pa ring tumakbo ang ibang kandidato."], "answer": "May political inequality, ngunit hindi pa napatutunayan ang election offense."}, {"activity": "FINAL 5 • ASSESSMENT", "q": "Mataas ang antas ng kahirapan sa isang lalawigang matagal nang pinamumunuan ng magkakamag-anak. Mayroon ding mga suliranin sa trabaho, edukasyon, presyo ng bilihin, at imprastraktura. Alin ang pinakatumpak na pagsusuri?", "options": ["Dinastiyang politikal ang nag-iisang sanhi ng kahirapan sa lalawigan.", "Mahinang pamamahala ay maaaring magpalala sa iba pang sanhi ng kahirapan.", "Kakulangan sa trabaho ang nag-iisang dahilan ng kahirapan sa lalawigan.", "Ugnayang pampamilya ng mga pinuno ang sapat na paliwanag sa kahirapan."], "answer": "Mahinang pamamahala ay maaaring magpalala sa iba pang sanhi ng kahirapan."}, {"activity": "FINAL 5 • ASSESSMENT", "q": "Naipagpatuloy ng bagong halal na kamag-anak ng dating pinuno ang programang nakapaghatid ng serbisyo sa maraming barangay. Wala pang inilalabas na pagsusuri sa kalidad, gastos, at pangmatagalang resulta nito. Alin ang pinakamakatwirang pagbasa?", "options": ["Mahusay ang pamumuno dahil naipagpatuloy ang dating programa.", "Positibo ang epekto dahil maraming barangay ang napaglilingkuran nito.", "Maaaring kapaki-pakinabang ito, ngunit kailangan pa ng pagsusuri sa resulta.", "Mabuti ang dinastiya dahil hindi naputol ang programa ng pamahalaan."], "answer": "Maaaring kapaki-pakinabang ito, ngunit kailangan pa ng pagsusuri sa resulta."}]}, "d5": {"short": "Sesyon 5", "title": "Tugon sa Hamon ng Dinastiyang Politikal", "youtube": "", "practice": [{"activity": "BATAS AT KILOS: KONSEPTO ANG KILALANIN", "q": "Ito ang bahagi ng Artikulo II ng 1987 Saligang Batas na nagtatakda ng pantay na pagkakataon sa paglilingkod-bayan at pagbabawal sa dinastiyang politikal ayon sa depinisyong itatakda ng batas. ALIN ITO?", "options": ["ARTIKULO II, SEKSIYON 26", "ARTIKULO III, SEKSIYON 4", "ARTIKULO VI, SEKSIYON 26", "ARTIKULO X, SEKSIYON 3"], "answer": "ARTIKULO II, SEKSIYON 26"}, {"activity": "BATAS AT KILOS: KONSEPTO ANG KILALANIN", "q": "Ito ang panukalang inaprubahan ng House of Representatives sa ikatlo at pinal na pagbasa noong Hunyo 3, 2026. ALIN ITO?", "options": ["HOUSE BILL NO. 8389 / PROPOSED ANTI-POLITICAL DYNASTY ACT", "REPUBLIC ACT NO. 10742", "LOCAL GOVERNMENT CODE", "OMNIBUS ELECTION CODE"], "answer": "HOUSE BILL NO. 8389 / PROPOSED ANTI-POLITICAL DYNASTY ACT"}, {"activity": "BATAS AT KILOS: KONSEPTO ANG KILALANIN", "q": "Ito ang tawag sa isang mungkahing panukalang hindi pa nakukumpleto ang proseso upang maging ganap na batas. ALIN ITO?", "options": ["PANUKALANG BATAS / BILL", "BATAS / ACT", "IMPLEMENTING RULES", "DESISYON NG KORTE"], "answer": "PANUKALANG BATAS / BILL"}, {"activity": "BATAS AT KILOS: KONSEPTO ANG KILALANIN", "q": "Ito ang mekanismong naglilimita sa panunungkulan ng isang tao ngunit hindi awtomatikong pumipigil sa paghalili ng kaniyang kamag-anak. ALIN ITO?", "options": ["TERM LIMIT", "POLITICAL DYNASTY BAN", "DISQUALIFICATION", "RECALL ELECTION"], "answer": "TERM LIMIT"}, {"activity": "BATAS AT KILOS: KONSEPTO ANG KILALANIN", "q": "Ito ang sangay ng pamahalaang kailangang magtakda ng depinisyon, saklaw, at paraan ng pagpapatupad ng pagbabawal sa dinastiyang politikal. ALIN ITO?", "options": ["KONGRESO", "KORTE SUPREMA", "COMELEC", "PAMAHALAANG LOKAL"], "answer": "KONGRESO"}, {"activity": "KILOS NG MAMAMAYAN", "q": "Aling KILOS ang tumutukoy sa pagsusuri sa kuwalipikasyon, kakayahan, integridad, plataporma, rekord, at pananagutan ng kandidato?", "options": ["K — KILATISIN ANG KANDIDATO", "I — IBERIPIKA ANG IMPORMASYON", "L — LUMAHOK SA PAMAYANAN", "S — SUBAYBAYAN ANG PAMAMAHALA"], "answer": "K — KILATISIN ANG KANDIDATO"}, {"activity": "KILOS NG MAMAMAYAN", "q": "Aling KILOS ang tumutukoy sa paghahambing ng campaign information sa opisyal na rekord, mapagkakatiwalaang ulat, pampublikong dokumento, at aktuwal na nagawa?", "options": ["K — KILATISIN ANG KANDIDATO", "I — IBERIPIKA ANG IMPORMASYON", "O — OPORTUNIDAD AY PALAWAKIN", "S — SUBAYBAYAN ANG PAMAMAHALA"], "answer": "I — IBERIPIKA ANG IMPORMASYON"}, {"activity": "KILOS NG MAMAMAYAN", "q": "Aling KILOS ang tumutukoy sa pakikibahagi sa mga konsultasyon, youth assembly, organisasyon, at gawaing pangkomunidad?", "options": ["L — LUMAHOK SA PAMAYANAN", "K — KILATISIN ANG KANDIDATO", "I — IBERIPIKA ANG IMPORMASYON", "O — OPORTUNIDAD AY PALAWAKIN"], "answer": "L — LUMAHOK SA PAMAYANAN"}, {"activity": "KILOS NG MAMAMAYAN", "q": "Aling KILOS ang tumutukoy sa paghikayat at pagbibigay-puwang sa iba pang kuwalipikadong mamamayan at kabataan na makilahok at maglingkod?", "options": ["O — OPORTUNIDAD AY PALAWAKIN", "L — LUMAHOK SA PAMAYANAN", "S — SUBAYBAYAN ANG PAMAMAHALA", "K — KILATISIN ANG KANDIDATO"], "answer": "O — OPORTUNIDAD AY PALAWAKIN"}, {"activity": "KILOS NG MAMAMAYAN", "q": "Aling KILOS ang tumutukoy sa pagbantay sa mga pangako, badyet, proyekto, serbisyo, at paggamit ng kapangyarihan?", "options": ["S — SUBAYBAYAN ANG PAMAMAHALA", "I — IBERIPIKA ANG IMPORMASYON", "L — LUMAHOK SA PAMAYANAN", "O — OPORTUNIDAD AY PALAWAKIN"], "answer": "S — SUBAYBAYAN ANG PAMAMAHALA"}], "final": [{"activity": "FINAL 5 • ASSESSMENT", "q": "Naipasa sa ikatlo at pinal na pagbasa ng House of Representatives ang isang panukala laban sa dinastiyang politikal. Kumakalat ang post na ganap nang ipinagbabawal ang lahat ng dinastiyang politikal. Aling pagsusuri ang pinakatumpak?", "options": ["Naaprubahan na ito bilang batas ng House of Representatives.", "Naipasa na ito bilang batas ng buong Kongreso ng Pilipinas.", "Naipasa na ito sa Kamara ngunit nananatiling isang panukala.", "Naipatutupad na ito ngunit hinihintay pa ang kaukulang patakaran."], "answer": "Naipasa na ito sa Kamara ngunit nananatiling isang panukala."}, {"activity": "FINAL 5 • ASSESSMENT", "q": "Natapos na ng isang alkalde ang pinakamataas na bilang ng magkakasunod na termino. Tumakbo naman ang kaniyang asawa sa parehong posisyon at nahalal. Ano ang pinakamainam na pagsusuri?", "options": ["Nalabag ang term limit dahil kamag-anak ang humalili sa posisyon.", "Nasunod ang term limit ngunit nanatili sa pamilya ang kapangyarihan.", "Naiwasan ang dinastiya dahil ibang tao na ang nahalal sa posisyon.", "Natapos ang impluwensiya ng alkalde dahil hindi na siya ang nanunungkulan."], "answer": "Nasunod ang term limit ngunit nanatili sa pamilya ang kapangyarihan."}, {"activity": "FINAL 5 • ASSESSMENT", "q": "Naglabas ang isang kandidato ng ulat na matagumpay ang kaniyang mga proyekto. Mula lamang ito sa kaniyang campaign page at walang kalakip na pampublikong dokumento. Ano ang pinakanaaangkop na tugon?", "options": ["Tanggapin ang ulat dahil nakasaad ang mga natapos na proyekto.", "Ihambing ang ulat sa opisyal na rekord at pampublikong dokumento.", "Ituring ang ulat na propaganda dahil mula ito sa campaign page.", "Hintayin ang reaksiyon ng mga tagasuporta at kritiko ng kandidato."], "answer": "Ihambing ang ulat sa opisyal na rekord at pampublikong dokumento."}, {"activity": "FINAL 5 • ASSESSMENT", "q": "Nakasaad sa Saligang Batas ang pagbabawal sa dinastiyang politikal “as may be defined by law.” Wala pang ganap na pangkalahatang enabling law. Aling paliwanag ang pinakatumpak?", "options": ["Opsiyonal sa Kongreso ang pagbuo ng depinisyon at pagbabawal.", "Sapat na ang Saligang Batas upang awtomatikong ipatupad ang pagbabawal.", "Kongreso ang magtatakda ng depinisyon, saklaw, at paraan ng pagpapatupad.", "COMELEC ang maaaring bumuo ng depinisyon habang wala pang batas ang Kongreso."], "answer": "Kongreso ang magtatakda ng depinisyon, saklaw, at paraan ng pagpapatupad."}, {"activity": "FINAL 5 • ASSESSMENT", "q": "Ipinakilala ng isang opisyal ang scholarship program bilang personal niyang tulong. Nakasaad naman sa budget report na pinondohan ito ng lokal na pamahalaan. Ano ang pinakamahalagang pagkakaibang dapat makita?", "options": ["Programa ito ng opisyal dahil siya ang nanguna sa pagpapatupad.", "Programa ito ng pamahalaan ngunit maaari pa ring kilalanin ang opisyal.", "Serbisyong pampubliko ito at hindi personal na regalo ng opisyal.", "Serbisyo ito sa mamamayan na maaaring gamiting batayan sa halalan."], "answer": "Serbisyong pampubliko ito at hindi personal na regalo ng opisyal."}]}}};
+var STORAGE_KEY="ap10_week1_interactive_v1",NAME_KEY="ap10_week1_name_v1",LETTERS=["A","B","C","D"];
+var appState=loadState(),current=null,ticker=null;
+
+function byId(x){return document.getElementById(x)}
+function loadState(){try{return JSON.parse(localStorage.getItem(STORAGE_KEY))||{records:{}}}catch(e){return{records:{}}}}
+function saveState(){localStorage.setItem(STORAGE_KEY,JSON.stringify(appState))}
+function esc(v){return String(v==null?"":v).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
+function shuffle(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),t=a[i];a[i]=a[j];a[j]=t}return a}
+function fmt(sec){sec=Math.max(0,Math.round(sec||0));var h=Math.floor(sec/3600),m=Math.floor((sec%3600)/60),s=sec%60;return h?h+":"+String(m).padStart(2,"0")+":"+String(s).padStart(2,"0"):String(m).padStart(2,"0")+":"+String(s).padStart(2,"0")}
+function pct(a,b){return b?Math.round(a/b*100):0}
+function show(id){["home","quiz","result","dashboard"].forEach(function(x){byId(x).classList.toggle("hidden",x!==id)});window.scrollTo(0,0)}
+function key(day){return day+":session"}function rec(day){return appState.records[key(day)]||null}
+function saveName(){localStorage.setItem(NAME_KEY,byId("studentName").value.trim())}function getName(){return localStorage.getItem(NAME_KEY)||""}
+function normalized(q,origin,phase){return{q:q.q,answer:q.answer,options:shuffle(q.options),origin:origin,phase:phase,activity:q.activity||phase}}
+
+function startSession(day){
+ var d=DATA.days[day];
+ var practice=shuffle(d.practice).map(function(q){return normalized(q,day,"INTERACTIVE PRACTICE")});
+ var final=d.final.map(function(q){return normalized(q,day,"FINAL 5 • ASSESSMENT")});
+ startQuiz(practice.concat(final),day,d);
+}
+function startQuiz(items,day,d){
+ clearInterval(ticker);
+ current={day:day,items:items,index:0,score:0,wrong:[],started:Date.now(),itemStarted:Date.now(),title:d.title};
+ byId("quizBadge").textContent=d.short+" • INTERACTIVE PRACTICE";
+ byId("quizTitle").textContent=d.title;
+ show("quiz");renderQuestion();ticker=setInterval(updateTimers,500);updateTimers();
+}
+function updateTimers(){
+ if(!current)return;var now=Date.now();
+ byId("totalTimer").textContent=fmt((now-current.started)/1000);
+ byId("itemTimer").textContent=fmt((now-current.itemStarted)/1000)
+}
+function renderQuestion(){
+ var q=current.items[current.index],isFinal=q.phase.indexOf("FINAL 5")===0;
+ current.itemStarted=Date.now();
+ byId("progressBar").style.width=(current.index/current.items.length*100)+"%";
+ var opts=q.options.map(function(o,i){
+   return'<button class="opt" data-i="'+i+'"><span class="letter">'+LETTERS[i]+'</span><span>'+esc(o)+'</span></button>'
+ }).join("");
+ byId("questionArea").innerHTML=
+   '<div class="phase"><span class="badge '+(isFinal?'final':'')+'">'+esc(isFinal?q.phase:q.activity)+'</span></div>'+
+   '<div class="qnum">Tanong '+(current.index+1)+' / '+current.items.length+'</div>'+
+   '<div class="question">'+esc(q.q)+'</div>'+
+   '<div class="options">'+opts+'</div><div id="feedback"></div>'+
+   '<div class="row hidden" id="nextRow"><button class="btn" id="nextBtn">'+(current.index===current.items.length-1?'Tingnan ang Resulta':'Susunod')+'</button></div>';
+ Array.prototype.forEach.call(document.querySelectorAll(".opt"),function(b){
+   b.addEventListener("click",function(){choose(parseInt(b.getAttribute("data-i"),10))})
+ });
+ byId("nextBtn").addEventListener("click",next);
+}
+function choose(i){
+ var q=current.items[current.index],chosen=q.options[i],sec=(Date.now()-current.itemStarted)/1000,ok=chosen===q.answer;
+ if(ok)current.score++;else current.wrong.push({q:q.q,chosen:chosen,answer:q.answer,time:sec,phase:q.phase,activity:q.activity});
+ Array.prototype.forEach.call(document.querySelectorAll(".opt"),function(b,n){
+   b.disabled=true;var v=q.options[n];
+   if(v===q.answer)b.classList.add("correct");
+   if(n===i&&v!==q.answer)b.classList.add("wrong")
+ });
+ var f=byId("feedback");f.className="feedback "+(ok?"ok":"no");
+ f.innerHTML=ok?"✓ Tama!":"✗ Hindi tama. Tamang sagot: <strong>"+esc(q.answer)+"</strong>";
+ byId("nextRow").classList.remove("hidden");
+}
+function next(){if(current.index<current.items.length-1){current.index++;renderQuestion()}else finish()}
+function finish(){
+ clearInterval(ticker);
+ var sec=(Date.now()-current.started)/1000,total=current.items.length,acc=pct(current.score,total),k=key(current.day);
+ var old=appState.records[k]||{attempts:0,totalScore:0,totalItems:0,bestScore:0,bestTotal:total,totalTime:0};
+ var oldBest=old.attempts?pct(old.bestScore,old.bestTotal):-1;
+ appState.records[k]={
+   attempts:(old.attempts||0)+1,totalScore:(old.totalScore||0)+current.score,totalItems:(old.totalItems||0)+total,
+   bestScore:acc>=oldBest?current.score:old.bestScore,bestTotal:acc>=oldBest?total:old.bestTotal,
+   latestScore:current.score,latestTotal:total,latestAccuracy:acc,totalTime:(old.totalTime||0)+sec,
+   latestTime:sec,latestWrong:current.wrong,latestDate:new Date().toISOString()
+ };
+ saveState();
+ byId("resultTitle").textContent=current.title;byId("score").textContent=current.score+" / "+total;
+ byId("metrics").innerHTML=
+   '<span class="metric"><strong>'+acc+'%</strong> accuracy</span>'+
+   '<span class="metric"><strong>'+fmt(sec)+'</strong> oras</span>'+
+   '<span class="metric"><strong>'+current.wrong.length+'</strong> mali</span>';
+ renderMistakes();byId("mistakesBtn").disabled=current.wrong.length===0;updateStatuses();show("result");
+}
+function renderMistakes(){
+ if(!current.wrong.length){byId("mistakes").innerHTML='<div class="note"><strong>Perfect!</strong> Walang maling sagot.</div>';return}
+ byId("mistakes").innerHTML='<h3>Mga Kailangang Balikan</h3>'+current.wrong.map(function(w,i){
+   return'<div class="mistake"><strong>'+(i+1)+'. '+esc(w.q)+'</strong><br>'+
+     'Sagot: '+esc(w.chosen)+'<br>Tamang sagot: <strong>'+esc(w.answer)+'</strong><br>'+
+     '<span style="font-size:.84rem;color:#6b746f">'+esc(w.activity||w.phase)+' • '+fmt(w.time)+'</span></div>'
+ }).join("");
+}
+function retryMistakes(){
+ if(!current||!current.wrong.length)return;
+ var d=DATA.days[current.day],pool=d.practice.concat(d.final);
+ var items=current.wrong.map(function(w){
+   var f=pool.find(function(q){return q.q===w.q&&q.answer===w.answer});
+   return normalized(f||{q:w.q,answer:w.answer,options:[w.answer,w.chosen,"HINDI SAPAT ANG DATOS","WALA SA MGA NABANGGIT"],activity:"ULITIN ANG MALI"},current.day,"ULITIN ANG MALI")
+ });
+ startQuiz(items,current.day,{short:d.short,title:"Ulitin ang Mali — "+d.title});
+}
+function updateStatuses(){
+ ["d1","d2","d3","d4","d5"].forEach(function(day){
+   var r=rec(day),el=byId("status-"+day);if(!el)return;
+   el.innerHTML=r
+     ?'Best: <strong>'+r.bestScore+'/'+r.bestTotal+'</strong> • Latest: <strong>'+r.latestScore+'/'+r.latestTotal+'</strong> • '+r.attempts+' attempt(s) • '+fmt(r.totalTime)+' total time'
+     :'Wala pang attempt.'
+ })
+}
+function showDashboard(){
+ byId("dashStudent").innerHTML='Mag-aaral: <strong>'+esc(getName()||"Hindi nakalagay")+'</strong>';
+ var ta=0,tt=0;
+ byId("dashRows").innerHTML=["d1","d2","d3","d4","d5"].map(function(day){
+   var d=DATA.days[day],r=rec(day);
+   if(!r)return'<tr><td>'+esc(d.short)+'<br><span style="font-size:.82rem;color:#6d756f">'+esc(d.title)+'</span></td><td>—</td><td>—</td><td>0</td><td>—</td><td>—</td><td>—</td><td><button class="btn dashPractice" data-day="'+day+'">Practice</button></td></tr>';
+   ta+=r.attempts||0;tt+=r.totalTime||0;
+   return'<tr><td>'+esc(d.short)+'<br><span style="font-size:.82rem;color:#6d756f">'+esc(d.title)+'</span></td>'+
+     '<td>'+r.latestScore+'/'+r.latestTotal+' ('+r.latestAccuracy+'%)</td>'+
+     '<td>'+r.bestScore+'/'+r.bestTotal+' ('+pct(r.bestScore,r.bestTotal)+'%)</td>'+
+     '<td>'+r.attempts+'</td><td>'+pct(r.totalScore,r.totalItems)+'%</td>'+
+     '<td>'+fmt(r.totalTime)+'</td><td>'+(r.latestWrong||[]).length+'</td>'+
+     '<td><button class="btn dashPractice" data-day="'+day+'">Practice</button></td></tr>'
+ }).join("");
+ byId("dashSummary").innerHTML='<strong>Buod:</strong> '+ta+' total attempt(s) • '+fmt(tt)+' kabuuang oras ng pag-aaral.';
+ Array.prototype.forEach.call(document.querySelectorAll(".dashPractice"),function(b){
+   b.addEventListener("click",function(){startSession(b.getAttribute("data-day"))})
+ });
+ show("dashboard");
+}
+function csv(){
+ var rows=[["Mag-aaral",getName()],[],["Sesyon","Latest","Best","Attempts","Average","Total Time","Mali"]];
+ ["d1","d2","d3","d4","d5"].forEach(function(day){
+   var d=DATA.days[day],r=rec(day);
+   rows.push(r?[d.short+" - "+d.title,r.latestScore+"/"+r.latestTotal,r.bestScore+"/"+r.bestTotal,r.attempts,pct(r.totalScore,r.totalItems)+"%",fmt(r.totalTime),(r.latestWrong||[]).length]:
+     [d.short+" - "+d.title,"","","0","","",""])
+ });
+ var content="\ufeff"+rows.map(function(row){return row.map(function(x){return'"'+String(x||"").replace(/"/g,'""')+'"'}).join(",")}).join("\n");
+ var blob=new Blob([content],{type:"text/csv;charset=utf-8"}),a=document.createElement("a");
+ a.href=URL.createObjectURL(blob);a.download="AP10_Week1_Progress.csv";a.click()
+}
+function resetProgress(){
+ if(!confirm("Burahin ang lahat ng saved progress at oras sa browser na ito?"))return;
+ appState={records:{}};saveState();updateStatuses();showDashboard()
+}
+function home(){clearInterval(ticker);show("home");updateStatuses()}
+
+document.addEventListener("DOMContentLoaded",function(){
+ byId("studentName").value=getName();updateStatuses();
+ Array.prototype.forEach.call(document.querySelectorAll("[data-practice]"),function(a){
+   a.addEventListener("click",function(e){e.preventDefault();startSession(a.getAttribute("data-practice"))})
+ });
+ byId("saveNameBtn").addEventListener("click",saveName);
+ byId("dashboardBtn").addEventListener("click",showDashboard);
+ byId("homeFromQuiz").addEventListener("click",home);
+ byId("homeFromResult").addEventListener("click",home);
+ byId("homeFromDash").addEventListener("click",home);
+ byId("repeatBtn").addEventListener("click",function(){startSession(current.day)});
+ byId("mistakesBtn").addEventListener("click",retryMistakes);
+ byId("csvBtn").addEventListener("click",csv);
+ byId("resetBtn").addEventListener("click",resetProgress);
+});
+</script>
+</body>
+</html>
